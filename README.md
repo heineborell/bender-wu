@@ -1,3 +1,3 @@
-## Bender-Wu 
+## Bender-Wu
 
-This will be about the package bender-wu for QNM's.
+This will be about the package Bender-Wu for QNM's.
