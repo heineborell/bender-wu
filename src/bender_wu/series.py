@@ -13,7 +13,7 @@ x, s, r0, d, L = symbols("x s r0 d L")
 # fx = x + ln(s*x -1)
 # fx = Function('f')(x)
 x0 = 0  # expand about the point x_0
-N = 10  # get first N coefficients
+N = 100  # get first N coefficients
 
 
 def V(x, s, L):
@@ -34,8 +34,8 @@ fx = rs(r0 + x) - rs(r0)
 f_n = {}  # nth derivatives of f(x)
 f_n_x0 = {}  # nth derivatives, but evaluated at x = x_0
 f_n[1] = diff(fx, x, 1)  # differentiate f(x)
-f_n_x0[1] = (
-    f_n[1].subs({x: x0, r0: max(solve(diff(V(x, 2, 2), x), x)).n()}).evalf()
+f_n_x0[1] = f_n[1].subs(
+    {x: x0, r0: max(solve(diff(V(x, 2, 2), x), x)).n()}
 )  # do the substitution
 
 for i in range(2, N + 1):
