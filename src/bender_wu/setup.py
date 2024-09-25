@@ -3,7 +3,7 @@ from setuptools import setup
 requirements = ["sympy", "numpy", "symengine"]
 
 
-requirements_dev = ["black", "flake8", "isort", "pre-commit"]
+requirements_dev = ["black", "flake8", "isort", "pre-commit", "pytest", "pytest-cov"]
 
 
 setup(
