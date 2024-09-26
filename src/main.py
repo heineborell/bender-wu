@@ -1,9 +1,11 @@
 import symengine
+from sympy import log
 
 from bender_wu import taylor_ser
 
 if __name__ == "__main__":
+    N = 30
     x = symengine.Symbol("x")
-    tc = taylor_ser.taylor(x, x**4, 1, 5)
-    print(taylor_ser.p_coeff(3, tc))
-    print(tc)
+    ts = taylor_ser.taylor(x, x * log(x - 1), 3, N)
+    tp = taylor_ser.p_coeff(N, ts)
+    print(ts)

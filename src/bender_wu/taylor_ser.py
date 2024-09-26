@@ -1,17 +1,17 @@
 import math
 
-from symengine import diff
+import symengine
 
 
 def taylor(var, func, val: float, N: int, repl=True) -> dict[int, float]:
 
     f_n = {}  # nth derivatives of f(x)
     f_n_x0 = {}  # nth derivatives, but evaluated at x = x_0
-    f_n[1] = diff(func, var, 1)  # differentiate f(x)
-    f_n_x0[1] = f_n[1].subs(var, val)  # do the substitution
+    f_n[1] = symengine.diff(func, var, 1)  # differentiate f(x)
+    f_n_x0[1] = f_n[1].subs(var, val).evalf()  # do the substitution
 
     for i in range(2, N + 1):
-        f_n[i] = diff(f_n[i - 1], var, 1)
+        f_n[i] = symengine.diff(f_n[i - 1], var, 1)
         # it's more efficient to differentiate the previous derivative
         # once than to directly ask for the nth derivative
         f_n_x0[i] = f_n[i].subs(var, val).evalf()
@@ -44,3 +44,21 @@ def p_coeff(N: int, Y: dict) -> dict[int, float]:
                 )
             P[(j, k)] = P[(j, k)] * 1 / (k - j) * 1 / Y[1]
     return P
+
+
+def c_coeff(f_n_x0, N, P):
+    b_n = {}  # Vector of pre-computed dummy variable values
+
+    b_n[1] = 1 / f_n_x0[1]
+
+    c_n = {}  # vector of Taylor series coefficients
+    c_n[1] = b_n[1] / math.factorial(1)
+
+    for n in range(2, N + 1):
+
+        b_n[n] = 0
+        for j in range(1, n):
+            b_n[n] = b_n[n] + b_n[j] / math.factorial(j) * P[(j, n)]
+            b_n[n] = b_n[n] * math.factorial(n) * -1 * b_n[1] ** n
+            c_n[n] = b_n[n] / math.factorial(n)
+    return c_n
