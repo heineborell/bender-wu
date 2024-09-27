@@ -1,0 +1,28 @@
+# A workflow to install dependencies, run unit tests, and lint
+
+name: GitHub Actions CI
+on:
+  pull_request
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup up python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+      - name: Install package
+        run: |
+          pip install --upgrade pip
+          pip install .
+      - name: Linting with flake8
+        run: |
+          pip install flake8
+          flake8 --show-source --ignore=F401
+      - name: Unit tests with pytest
+        run: |
+          pip install pytest
+          pytest -v
