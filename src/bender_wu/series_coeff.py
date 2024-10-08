@@ -3,12 +3,14 @@ import math
 import symengine
 
 
-def taylor(var, func, val: float, N: int, repl=True, fac=False) -> dict[int, float]:
+def taylor(
+    var, func, val: float, N: int, prec: int, repl=True, fac=False
+) -> dict[int, float]:
 
     f_n = {}  # nth derivatives of f(x)
     f_n_x0 = {}  # nth derivatives, but evaluated at x = x_0
     f_n[1] = symengine.diff(func, var, 1)  # differentiate f(x)
-    f_n_x0[1] = f_n[1].subs(var, val).evalf()  # do the substitution
+    f_n_x0[1] = f_n[1].subs(var, val).n(prec)  # do the substitution
 
     if fac is False:
 
@@ -16,14 +18,14 @@ def taylor(var, func, val: float, N: int, repl=True, fac=False) -> dict[int, flo
             f_n[i] = symengine.diff(f_n[i - 1], var, 1)
             # it's more efficient to differentiate the previous derivative
             # once than to directly ask for the nth derivative
-            f_n_x0[i] = f_n[i].subs(var, val).evalf()
+            f_n_x0[i] = f_n[i].subs(var, val).n(prec)
 
     else:
         for i in range(2, N + 1):
             f_n[i] = symengine.diff(f_n[i - 1], var, 1) / i
             # it's more efficient to differentiate the previous derivative
             # once than to directly ask for the nth derivative
-            f_n_x0[i] = f_n[i].subs(var, val).evalf()
+            f_n_x0[i] = f_n[i].subs(var, val).n(prec)
 
     if repl is True:
         return f_n_x0
