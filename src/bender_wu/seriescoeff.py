@@ -4,7 +4,7 @@ import symengine
 
 
 class SeriesCoeff:
-    def __init__(self, var, val, func, N, prec) -> None:
+    def __init__(self, var: str, val: float, func, N: int, prec: int) -> None:
         self.var = symengine.Symbol(var)
         self.val = val
         self.func = func
@@ -19,21 +19,11 @@ class SeriesCoeff:
         self.c_n = {}
 
     def taylor(self, fac=False):
-
-        if fac is False:
-
-            for i in range(2, self.N + 1):
-                self.f_n[i] = symengine.diff(self.f_n[i - 1], self.var, 1)
-                # it's more efficient to differentiate the previous derivative
-                # once than to directly ask for the nth derivative
-                self.f_n_x0[i] = self.f_n[i].subs(self.var, self.val).n(self.prec)
-
-        else:
-            for i in range(2, self.N + 1):
-                self.f_n[i] = symengine.diff(self.f_n[i - 1], self.var, 1) / i
-                # it's more efficient to differentiate the previous derivative
-                # once than to directly ask for the nth derivative
-                self.f_n_x0[i] = self.f_n[i].subs(self.var, self.val).n(self.prec)
+        for i in range(2, self.N + 1):
+            self.f_n[i] = symengine.diff(self.f_n[i - 1], self.var, 1) / (
+                i if fac else 1  # differentiated the previous f as it is faster
+            )
+            self.f_n_x0[i] = self.f_n[i].subs(self.var, self.val).n(self.prec)
 
     def p_coeff(self):
         # Y should contain N symbolic derivatives, where
@@ -57,11 +47,8 @@ class SeriesCoeff:
                 self.P[(j, k)] = self.P[(j, k)] * 1 / (k - j) * 1 / self.f_n_x0[1]
 
     def c_coeff(self):
-
         self.b_n[1] = 1 / self.f_n_x0[1]
-
         self.c_n[1] = self.b_n[1] / math.factorial(1)
-
         for n in range(2, self.N + 1):
 
             self.b_n[n] = 0
@@ -69,5 +56,6 @@ class SeriesCoeff:
                 self.b_n[n] = (
                     self.b_n[n] + self.b_n[j] / math.factorial(j) * self.P[(j, n)]
                 )
-                self.b_n[n] = self.b_n[n] * math.factorial(n) * -1 * self.b_n[1] ** n
-                self.c_n[n] = self.b_n[n] / math.factorial(n)
+
+            self.b_n[n] = self.b_n[n] * math.factorial(n) * -1 * self.b_n[1] ** n
+            self.c_n[n] = self.b_n[n] / math.factorial(n)
