@@ -12,8 +12,15 @@ class SeriesCoeff:
         self.prec = prec
         self.f_n = {}  # nth derivatives of f(x)
         self.f_n_x0 = {}  # nth derivatives, but evaluated at x = x_0
-        self.f_n[1] = symengine.diff(func, var, 1)  # differentiate f(x)
-        self.f_n_x0[1] = self.f_n[1].subs(var, val).n(prec)  # do the substitution
+        self.f_n[0] = self.func
+        self.f_n[1] = symengine.diff(self.func, self.var, 1)  # differentiate f(x)
+        self.f_n_x0[0] = (
+            self.f_n[0].subs(self.var, self.val).n(self.prec)
+        )  # do the substitution
+
+        self.f_n_x0[1] = (
+            self.f_n[1].subs(self.var, self.val).n(self.prec)
+        )  # do the substitution
         self.P = {}
         self.b_n = {}  # Vector of pre-computed dummy variable values
         self.c_n = {}
@@ -48,6 +55,7 @@ class SeriesCoeff:
 
     def c_coeff(self):
         self.b_n[1] = 1 / self.f_n_x0[1]
+        self.c_n[0] = self.func.subs(self.var, self.val).n(self.prec)
         self.c_n[1] = self.b_n[1] / math.factorial(1)
         for n in range(2, self.N + 1):
 
