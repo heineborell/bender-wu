@@ -31,5 +31,6 @@ class PotCoeff:
             self.vdel += self.fn[i] * rs_pow(self.pdel, i, self.z, self.N)
 
     def vcoeff(self):
-        self.vc = 0
-        self.vc = [self.vdel.coeff(self.z**i) for i in range(0, self.N + 1)]
+        self.vc = {}
+        for i in range(0, self.N + 1):
+            self.vc[i] = self.vdel.coeff(self.z**i)
