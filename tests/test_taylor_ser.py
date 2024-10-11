@@ -9,6 +9,9 @@ def test_taylor():
     ts = seriescoeff.SeriesCoeff("x", 1, x**3, 4, 2)
     ts.taylor()
     got = ts.f_n_x0
+    got = {
+        k: round(float(v), 2) for k, v in got.items()
+    }  # takes sympycore.float to normal float
     assert got == want
 
 
@@ -18,4 +21,5 @@ def test_taylor_fac():
     ts = seriescoeff.SeriesCoeff("x", 1, x**3, 4, 2)
     ts.taylor(fac=True)
     got = ts.f_n_x0
+    got = {k: round(float(v), 2) for k, v in got.items()}
     assert got == want
