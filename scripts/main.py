@@ -14,12 +14,12 @@ def V(r, s, L):
 
 
 if __name__ == "__main__":
-    N = 10
+    N = 200
     x = symengine.Symbol("x")
     r = symengine.Symbol("r")
     s = 2
     L = 2
-    prec = 3
+    prec = 100
     R0 = solve(symengine.diff(V(x, s, L), x), x)
     r0 = max([sol.n(prec) for sol in iter(R0.args)])
     sf = seriescoeff.SeriesCoeff("x", 0, fg(r0 + x) - fg(r0), N, prec)
