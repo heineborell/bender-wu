@@ -3,13 +3,13 @@ import symengine
 if __name__ == "__main__":
 
     A = {}
-    nu = 1
-    eLL = 5
+    nu = 2
+    eLL = 15
     beta = symengine.symbols("beta")
     aarray = symengine.symarray("a", (eLL + 1, 1 + nu + 3 * eLL))
     varray = symengine.symarray("v", eLL + 3)
     # harray = symengine.symarray("h", 20)
-    harray = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    harray = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     earray = symengine.symarray("e", eLL + 3)
 
     for i, j in enumerate(earray):
@@ -67,14 +67,25 @@ if __name__ == "__main__":
                         )
             A[(L, k)] = 1 / (2 * (k - nu) * beta) * A[(L, k)]
 
+    arrayfull = []
+    for i in range(0, eLL + 1):
+        for j in range(0, 1 + nu + 3 * eLL):
+            arrayfull.append((i, j))
+    a_subs_dict = dict(zip(aarray.flatten(), {k: A[k] for k in arrayfull}.values()))
+
     efull = symengine.symarray("e", eLL + 3)
     for i, j in enumerate(efull):
         if i % 2 != 0:
             efull[i] = 0
     efull = efull[efull != 0]
-    subs_dict = dict(zip(efull, earray[earray != 0]))
+    e_subs_dict = dict(zip(efull, earray[earray != 0]))
+
+    def repeat(n, x, y):
+        for _ in range(n):
+            x = x.subs(y)
+        return x
 
     earray = earray[earray != 0]
-    for i in range(len(efull)):
-        earray[i] = symengine.sympify(earray[i].subs(subs_dict))
-    print((earray))
+    earray = [
+        repeat(eLL, i, a_subs_dict) for i in [repeat(eLL, j, e_subs_dict) for j in earray]
+    ]
