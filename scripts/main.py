@@ -14,7 +14,7 @@ def V(r, s, L):
 
 
 if __name__ == "__main__":
-    N = 20
+    N = 80
     x = symengine.Symbol("x")
     r = symengine.Symbol("r")
     s = 2

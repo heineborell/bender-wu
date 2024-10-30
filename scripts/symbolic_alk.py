@@ -1,8 +1,10 @@
+"""Module providing for computation of A[(l,k)]"""
+
 import symengine
 
 if __name__ == "__main__":
 
-    nu = 2
+    nu = 3
     eLL = 10
     beta = symengine.symbols("beta")
     a_array = symengine.symarray(
@@ -11,11 +13,13 @@ if __name__ == "__main__":
     v_array = symengine.symarray(
         "v", eLL + 3
     )  # symbolic values for potential expansion V_n
-    h_array = symengine.symarray("h", eLL + 3)  # symbolic values for function H, H_n
-    # h_array = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    # h_array = symengine.symarray("h", eLL + 3)  # symbolic values for function H, H_n
+    h_array = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     e_array = symengine.symarray(
         "e", eLL + 3
     )  # symbolic values for energy levels epsilon(l+2)
+
+    print(e_array)
 
     # First define A as a dict then populate the A[(l,k)] and epsilon(l+2)
     # values before using the master formula
@@ -55,8 +59,9 @@ if __name__ == "__main__":
     for L in range(1, eLL + 1):
         A[(L, nu)] = 0
 
+    # Computing A[(l,k)] from k = nu+3l down to k = nu
     for L in range(1, eLL + 1):
-        for k in reversed(range(nu + 1, nu + 3 * L + 1)):
+        for k in reversed(range(nu + 1, nu + 3 * L + 1)):  # first k from nu+3L to nu
             for n in range(1, L + 1):
                 A[(L, k)] = -(k + 1) * (k + 2) * A[(L, k + 2)]
                 for n in range(1, L + 1):
@@ -66,8 +71,9 @@ if __name__ == "__main__":
                             A[(L, k)]
                             - h_array[m] * e_array[n + 2 - m] * A[(L - n, k - m)]
                         )
-            A[(L, k)] = 1 / (2 * (k - nu) * beta) * A[(L, k)]
+            A[(L, k)] = 1 / (2 * (k - nu)) * A[(L, k)]
 
+    # Computing E (energy) using the A[(l,k)] we found above
     for L in range(1, eLL + 1):
         if e_array[L + 2] != 0:
             e_array[L + 2] = -(nu + 1) * (nu + 2) * A[(L, nu + 2)]
@@ -76,6 +82,7 @@ if __name__ == "__main__":
 
         e_array[L + 2] = 1 / (2 * A[(0, nu)] * h_array[0]) * e_array[L + 2]
 
+    # Computing the rest of A[(l,k)] from k = nu down to k = 0
     for L in range(1, eLL + 1):
         for k in reversed(range(0, nu)):
             for n in range(1, L + 1):
@@ -100,6 +107,7 @@ if __name__ == "__main__":
         if i % 2 != 0:
             efull[i] = 0
     efull = efull[efull != 0]
+
 # e_subs_dict = dict(zip(efull, e_array[e_array != 0]))
 
 # def repeat(n, x, y):
