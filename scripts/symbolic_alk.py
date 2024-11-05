@@ -77,12 +77,24 @@ if __name__ == "__main__":
 
     # Computing E (energy) using the A[(l,k)] we found above
     for L in range(1, eLL + 1):
+        sum_e1 = 0
+        sum_e2 = 0
+        sum_e3 = 0
         if e_array[L + 2] != 0:
             e_array[L + 2] = -(nu + 1) * (nu + 2) * A[(L, nu + 2)]
-            for n in range(1, L + 1):
-                e_array[L + 2] = e_array[L + 2] + v_array[n + 2] * A[(L - n, nu - n - 2)]
 
-        e_array[L + 2] = 1 / (2 * A[(0, nu)] * h_array[0]) * e_array[L + 2]
+            for n in range(1, L + 1):
+                sum_e1 += v_array[n + 2] * A[(L - n, nu - n - 2)]
+
+            for n in range(1, L):
+                for m in range(0, n + 3):
+                    sum_e2 += h_array[m] * e_array[n + 2 - m] * A[(L - n, nu - m)]
+
+            for n in range(1, L + 3):
+                sum_e3 += h_array[n] * e_array[L + 2 - n] * A[(0, nu - n)]
+
+        e_array[L + 2] = e_array[L + 2] + sum_e1 - sum_e2 - sum_e3
+        e_array[L + 2] = 1 / (A[(0, nu)] * h_array[0]) * e_array[L + 2]
 
     # Computing the rest of A[(l,k)] from k = nu down to k = 0
     for L in range(1, eLL + 1):
@@ -122,6 +134,6 @@ if __name__ == "__main__":
         repeat(eLL, i, a_subs_dict)
         for i in [repeat(eLL, j, e_subs_dict) for j in e_array]
     ]
-    print(e_array[2])
-    print(sympify(expand(A[4, 2])))
+    # print(e_array[2])
+    # print(sympify(expand(A[4, 2])))
     print(sympify(expand(e_array[3])))
