@@ -1,3 +1,4 @@
+import symengine
 from sympy.polys.domains import RR
 from sympy.polys.ring_series import rs_pow
 from sympy.polys.rings import ring
@@ -33,4 +34,4 @@ class PotCoeff:
     def vcoeff(self):
         self.vc = {}
         for i in range(0, self.N + 1):
-            self.vc[i] = self.vdel.coeff(self.z**i)
+            self.vc[i] = symengine.Float(self.vdel.coeff(self.z**i))

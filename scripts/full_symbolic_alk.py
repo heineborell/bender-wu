@@ -1,4 +1,4 @@
-"""This is the numerical A[(l,k)] computation"""
+"""Module providing for computation of A[(l,k)]"""
 
 import math
 
@@ -13,21 +13,21 @@ def fg(x):
     return x + log(x - 1)
 
 
-def V(r, s, L):
-    return (1 - 1 / r) * ((L * (L + 1)) / r**2 + (1 - s**2) / r**3)
+def V(r, s, ELL):
+    return (1 - 1 / r) * ((ELL * (ELL + 1)) / r**2 + (1 - s**2) / r**3)
 
 
 if __name__ == "__main__":
 
     nu = 0
-    eLL = 6
+    eLL = 5
     N = nu + (eLL + 2)
     x = symengine.Symbol("x")
     r = symengine.Symbol("r")
     s = 2
-    L = 2
-    prec = 20
-    R0 = solve(symengine.diff(V(x, s, L), x), x)
+    ELL = 2
+    prec = 10
+    R0 = solve(symengine.diff(V(x, s, ELL), x), x)
     r0 = max([sol.n(prec) for sol in iter(R0.args)])
     sf = seriescoeff.SeriesCoeff("x", 0, fg(r0 + x) - fg(r0), N, prec)
     sf.taylor()
@@ -37,24 +37,59 @@ if __name__ == "__main__":
     v_coef.vexpand()
     v_coef.vcoeff()
 
+    a_array = symengine.symarray(
+        "a", (eLL + 1, 1 + nu + 3 * eLL)
+    )  # symbolic values for A[(l,k)]
+    e_array = symengine.symarray(
+        "e", eLL + 3
+    )  # symbolic values for energy levels epsilon(l+2)
+
     h_array = dict.fromkeys(range(0, eLL * 3), 0)
     h_array[0] = -1
     v_array = v_coef.vc
-    e_array = dict.fromkeys(range(0, eLL + 3), 0)
     e_array[0] = v_array[0] / h_array[0]
     beta = -math.sqrt((h_array[0] * v_array[2] - h_array[2] * v_array[0]) / h_array[0])
     e_array[2] = -(2 * beta / h_array[0]) * (nu + 1 / 2)
 
-    A = dict.fromkeys(
-        [
-            (L, k)
-            for L in range(0, eLL + 1)
-            for k in range(-(nu + 3 * (eLL + 1)), nu + 3 * (eLL + 1))
-        ],
-        0,
-    )
+    # Odd valued energy levels are zero
+    for i, j in enumerate(e_array):
+        if i % 2 != 0:
+            e_array[i] = 0
+    print(e_array)
+    print(beta)
 
+    # First define A as a dict then populate the A[(l,k)] and epsilon(l+2)
+    # values before using the master formula
+    A = {}
     A[(0, nu)] = 1
+
+    # Setting A[(l,k)] to symbolic a_l_k
+    for L in range(0, eLL + 1):
+        for k in range(0, 1 + nu + 3 * eLL):
+            A[(L, k)] = a_array[L, k]
+
+    # A[(0,k)] = 1 for k = nu (for normalization) and A[(0,k)]= 0 for k != nu
+    for L in range(0, eLL + 1):
+        for k in range(0, nu + 3 * L + 1):
+            if k == nu:
+                A[(0, k)] = 1
+            else:
+                A[(0, k)] = 0
+
+    # A[(l,k)] = 0 for k<0
+    for k in range(1, nu + 3 * (eLL + 1)):
+        for L in range(0, eLL + 1):
+            A[(L, -k)] = 0
+
+    # A[(l,k)] = 0 for k> nu+3l
+    for L in range(0, eLL + 1):
+        for k in range(1, nu + 3 * (eLL + 1)):
+            if k > nu + 3 * L:
+                A[(L, k)] = 0
+
+    # A[(L,nu)]= 0  for l >= 1 for normalization
+    for L in range(1, eLL + 1):
+        A[(L, nu)] = 0
 
     # Computing A[(l,k)] from k = nu+3l down to k = nu
     for L in range(1, eLL + 1):
@@ -75,17 +110,18 @@ if __name__ == "__main__":
         sum_e1 = 0
         sum_e2 = 0
         sum_e3 = 0
-        e_array[L + 2] = -(nu + 1) * (nu + 2) * A[(L, nu + 2)]
+        if e_array[L + 2] != 0:
+            e_array[L + 2] = -(nu + 1) * (nu + 2) * A[(L, nu + 2)]
 
-        for n in range(1, L + 1):
-            sum_e1 += v_array[n + 2] * A[(L - n, nu - n - 2)]
+            for n in range(1, L + 1):
+                sum_e1 += v_array[n + 2] * A[(L - n, nu - n - 2)]
 
-        for n in range(1, L):
-            for m in range(0, n + 3):
-                sum_e2 += h_array[m] * e_array[n + 2 - m] * A[(L - n, nu - m)]
+            for n in range(1, L):
+                for m in range(0, n + 3):
+                    sum_e2 += h_array[m] * e_array[n + 2 - m] * A[(L - n, nu - m)]
 
-        for n in range(1, L + 3):
-            sum_e3 += h_array[n] * e_array[L + 2 - n] * A[(0, nu - n)]
+            for n in range(1, L + 3):
+                sum_e3 += h_array[n] * e_array[L + 2 - n] * A[(0, nu - n)]
 
         e_array[L + 2] = e_array[L + 2] + sum_e1 - sum_e2 - sum_e3
         e_array[L + 2] = 1 / (A[(0, nu)] * h_array[0]) * e_array[L + 2]
@@ -104,5 +140,6 @@ if __name__ == "__main__":
                         )
             A[(L, k)] = 1 / (2 * (k - nu) * beta) * A[(L, k)]
 
-    print(A[0, 2])
+    # print(e_array[2])
+    # print(sympify(expand(A[4, 2])))
     print(e_array)
