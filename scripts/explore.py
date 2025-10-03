@@ -1,6 +1,8 @@
 import symengine
 from symengine.lib.symengine_wrapper import solve
 from sympy import log
+import time
+import math
 
 from bender_wu import potcoeff, seriescoeff
 
@@ -14,7 +16,8 @@ def V(r, s, L):
 
 
 if __name__ == "__main__":
-    N = 10
+    start_time = time.perf_counter()
+    N = 30
     x = symengine.Symbol("x")
     r = symengine.Symbol("r")
     s = 2
@@ -23,11 +26,11 @@ if __name__ == "__main__":
     R0 = solve(symengine.diff(V(x, s, L), x), x)
     r0 = max([sol.n(prec) for sol in iter(R0.args)])
     sf = seriescoeff.SeriesCoeff("x", 0, fg(r0 + x) - fg(r0), N, prec)
-    sf.taylor()
-    sf.p_coeff()
-    sf.c_coeff()
-    v_coef = potcoeff.PotCoeff("x", V(x, 2, 2), r0, sf.c_n, N, prec)
-    v_coef.vexpand()
-    print(v_coef.vdel)
-    v_coef.vcoeff()
-    print(v_coef.vc)
+    sf.taylor(fac=True)
+    # sf.p_coeff()
+    # sf.c_coeff()
+    print(sf.f_n)
+
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    print(f"Elapsed time is {elapsed_time:.6f} seconds")
