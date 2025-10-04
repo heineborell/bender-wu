@@ -27,9 +27,11 @@ if __name__ == "__main__":
     r0 = max([sol.n(prec) for sol in iter(R0.args)])
     sf = seriescoeff.SeriesCoeff("x", 0, fg(r0 + x) - fg(r0), N, prec)
     sf.taylor(fac=True)
-    # sf.p_coeff()
+    sf.p_coeff()
     # sf.c_coeff()
-    print(sf.f_n)
+    # print(sf.f_n)
+    print((sf.P))
+    print(len(sf.P))
 
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time

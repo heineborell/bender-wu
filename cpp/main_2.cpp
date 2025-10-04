@@ -59,7 +59,7 @@ int main() {
   auto ex = add(add(x, a), log(sub(add(x, a), integer(1))));
 
   fourierSeries(arr, ex, x, 30);
-  printArray(arr);
+  // printArray(arr);
   std::cout << "Time elapsed: " << t.elapsed() << " seconds\n";
   return 0;
 }
