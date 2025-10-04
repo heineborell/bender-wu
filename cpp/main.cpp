@@ -44,7 +44,9 @@ void printDict(std::vector<std::vector<RCP<const Basic>>> &dict) {
   std::cout << "the dictionary is " << rows - 1 << 'x' << columns - 1 << '\n';
   for (std::size_t i{1}; i < rows; ++i) {
     for (std::size_t j{1}; j < columns; ++j) {
-      std::cout << *dict[i][j];
+      if (dict[i][j].get()) // check if its nullptr (since these are smart gotta
+                            // use .get)
+        std::cout << '(' << i << ',' << j << "): " << *dict[i][j] << '\n';
     }
   }
 }
@@ -82,14 +84,16 @@ fourierSeries(RCP<const Basic> func, RCP<const Symbol> var, std::size_t order) {
 //             self.P[(j, k)] = self.P[(j, k)] * 1 / (k - j) * 1 /
 //             self.f_n_x0[1]
 
-void pCoeff(std::vector<RCP<const Basic>> &arr, std::size_t order) {
+void inverseCoeff(std::vector<RCP<const Basic>> &arr, std::size_t order) {
   std::vector<std::vector<RCP<const Basic>>> dict(
-      order + 1, std::vector<RCP<const Basic>>(order + 1));
+      order + 1,
+      std::vector<RCP<const Basic>>(
+          order +
+          1)); // in order to start the index from 1, the size is order+1
   for (std::size_t j{1}; j <= order; ++j) {
     dict[j][j] = pow(arr[1], SymEngine::integer(j));
   }
   printDict(dict);
-  // std::cout << dict.size();
 }
 
 int main() {
@@ -98,11 +102,11 @@ int main() {
 
   RCP<const Symbol> x = symbol("x");
   RCP<const Symbol> rs = symbol("ra");
+  const int order{30};
   auto ex = add(add(x, rs), log(sub(add(x, rs), integer(1))));
 
-  std::vector<RCP<const Basic>> ser{fourierSeries(ex, x, 3)};
-  // printArray(ser);
-  pCoeff(ser, 3);
+  std::vector<RCP<const Basic>> ser{fourierSeries(ex, x, order)};
+  inverseCoeff(ser, order);
   std::cout << "Time elapsed: " << t.elapsed() << " seconds\n";
   return 0;
 }
