@@ -5,9 +5,11 @@
 #include <symengine/basic.h>
 #include <symengine/functions.h>
 #include <symengine/integer.h>
+#include <symengine/ntheory.h>
 #include <symengine/pow.h>
 #include <symengine/rational.h>
 #include <symengine/series.h>
+#include <symengine/simplify.h>
 #include <symengine/symengine_casts.h>
 #include <symengine/symengine_rcp.h>
 
@@ -47,6 +49,8 @@ void printDict(std::vector<std::vector<RCP<const Basic>>> &dict) {
       if (dict[i][j].get()) // check if its nullptr (since these are smart gotta
                             // use .get)
         std::cout << '(' << i << ',' << j << "): " << *dict[i][j] << '\n';
+      else
+        std::cout << '(' << i << ',' << j << "): " << "nullptr" << '\n';
     }
   }
 }
@@ -74,13 +78,9 @@ fourierSeries(RCP<const Basic> func, RCP<const Symbol> var, std::size_t order) {
 //         for k in range(j + 1, self.N + 1):
 //             self.P[(j, k)] = 0
 //             for m in reversed(range(1, k - j + 1)):
-//                 self.P[(j, k)] = (
-//                     self.P[(j, k)]
-//                     + (m * j - k + j + m)
-//                     * self.f_n_x0[m + 1]
-//                     / math.factorial(m + 1)
-//                     * self.P[(j, k - m)]
-//                 )
+//                 self.P[(j, k)] = ( self.P[(j, k)] + (m * j - k + j + m) *
+//                 self.f_n_x0[m + 1] / math.factorial(m + 1) * self.P[(j, k -
+//                 m)])
 //             self.P[(j, k)] = self.P[(j, k)] * 1 / (k - j) * 1 /
 //             self.f_n_x0[1]
 
@@ -92,8 +92,17 @@ void inverseCoeff(std::vector<RCP<const Basic>> &arr, std::size_t order) {
           1)); // in order to start the index from 1, the size is order+1
   for (std::size_t j{1}; j <= order; ++j) {
     dict[j][j] = pow(arr[1], SymEngine::integer(j));
+    for (std::size_t k{j + 1}; k <= order; ++k) {
+      dict[j][k] = SymEngine::integer(0);
+      for (std::size_t m{k - j}; m >= 1; --m) {
+        dict[j][k] = add(dict[j][k],
+                         mul(mul(SymEngine::integer(m * j - k + j + m),
+                                 div(arr[m + 1], SymEngine::factorial(m + 1))),
+                             dict[j][k - m]));
+      }
+      dict[j][k] = (mul(dict[j][k], mul(SymEngine::integer(k - j), arr[1])));
+    }
   }
-  printDict(dict);
 }
 
 int main() {
@@ -102,10 +111,10 @@ int main() {
 
   RCP<const Symbol> x = symbol("x");
   RCP<const Symbol> rs = symbol("ra");
-  const int order{30};
+  const int order{300};
   auto ex = add(add(x, rs), log(sub(add(x, rs), integer(1))));
 
-  std::vector<RCP<const Basic>> ser{fourierSeries(ex, x, order)};
+  std::vector<RCP<const Basic>> ser{fourierSeries(ex, x, order + 1)};
   inverseCoeff(ser, order);
   std::cout << "Time elapsed: " << t.elapsed() << " seconds\n";
   return 0;

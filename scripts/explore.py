@@ -17,7 +17,7 @@ def V(r, s, L):
 
 if __name__ == "__main__":
     start_time = time.perf_counter()
-    N = 30
+    N = 300
     x = symengine.Symbol("x")
     r = symengine.Symbol("r")
     s = 2
@@ -30,8 +30,8 @@ if __name__ == "__main__":
     sf.p_coeff()
     # sf.c_coeff()
     # print(sf.f_n)
-    print((sf.P))
-    print(len(sf.P))
+    # print((sf.P))
+    # print(len(sf.P))
 
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time
