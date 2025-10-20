@@ -9,14 +9,20 @@
 #include <symengine/pow.h>
 #include <symengine/rational.h>
 #include <symengine/series.h>
+#include <symengine/sets.h>
 #include <symengine/simplify.h>
+#include <symengine/solve.h>
 #include <symengine/symengine_casts.h>
 #include <symengine/symengine_rcp.h>
 
 using SymEngine::add;
 using SymEngine::Basic;
+using SymEngine::FiniteSet;
+using SymEngine::finiteset;
 using SymEngine::integer;
 using SymEngine::log;
+using SymEngine::max;
+using SymEngine::Max;
 using SymEngine::Pow;
 using SymEngine::pow;
 using SymEngine::RCP; // these are reference counted pointers so its working
@@ -55,7 +61,7 @@ void printDict(std::vector<std::vector<RCP<const Basic>>> &dict) {
   }
 }
 void printArray(std::vector<RCP<const Basic>> &arr) {
-  for (RCP<const Basic> item : arr) {
+  for (const RCP<const Basic> &item : arr) {
     std::cout << *item << '\n';
   }
 }
@@ -72,19 +78,8 @@ fourierSeries(RCP<const Basic> func, RCP<const Symbol> var, std::size_t order) {
   return arr;
 }
 
-// def p_coeff(self):
-//     for j in range(1, self.N + 1):
-//         self.P[(j, j)] = self.f_n_x0[1] ** j
-//         for k in range(j + 1, self.N + 1):
-//             self.P[(j, k)] = 0
-//             for m in reversed(range(1, k - j + 1)):
-//                 self.P[(j, k)] = ( self.P[(j, k)] + (m * j - k + j + m) *
-//                 self.f_n_x0[m + 1] / math.factorial(m + 1) * self.P[(j, k -
-//                 m)])
-//             self.P[(j, k)] = self.P[(j, k)] * 1 / (k - j) * 1 /
-//             self.f_n_x0[1]
-
-void inverseCoeff(std::vector<RCP<const Basic>> &arr, std::size_t order) {
+std::vector<std::vector<RCP<const Basic>>>
+inverseCoeff(std::vector<RCP<const Basic>> &arr, std::size_t order) {
   std::vector<std::vector<RCP<const Basic>>> dict(
       order + 1,
       std::vector<RCP<const Basic>>(
@@ -103,6 +98,15 @@ void inverseCoeff(std::vector<RCP<const Basic>> &arr, std::size_t order) {
       dict[j][k] = (mul(dict[j][k], mul(SymEngine::integer(k - j), arr[1])));
     }
   }
+  return dict;
+}
+
+RCP<const Basic> getPotential(RCP<const Symbol> r, const int L, const int s) {
+  return mul(
+      div(sub(r, integer(1)), r),
+      add(div(mul(integer(L), add(integer(L), integer(1))), pow(r, integer(2))),
+          div(sub(integer(1), pow(integer(s), integer(2))),
+              pow(r, integer(3)))));
 }
 
 int main() {
@@ -110,12 +114,32 @@ int main() {
   SymEngine::print_stack_on_segfault();
 
   RCP<const Symbol> x = symbol("x");
+  RCP<const Symbol> r = symbol("r");
   RCP<const Symbol> rs = symbol("ra");
-  const int order{300};
+
+  const int order{3};
+  const int N{3};
+  const int s{2};
+  const int L{2};
+
   auto ex = add(add(x, rs), log(sub(add(x, rs), integer(1))));
+  auto potential = getPotential(r, L, s);
+
+  std::cout << "solution is " << *solve(potential->diff(r), r) << '\n';
+  auto solutions = solve(potential->diff(r), r);
 
   std::vector<RCP<const Basic>> ser{fourierSeries(ex, x, order + 1)};
-  inverseCoeff(ser, order);
+  std::vector<std::vector<RCP<const Basic>>> inverse_coeff{
+      inverseCoeff(ser, order)};
+  printDict(inverse_coeff);
+  // auto contain = solutions.get_container();
+  auto finite_set =
+      SymEngine::rcp_static_cast<const SymEngine::FiniteSet>(solutions);
+  std::cout << "the set is " << *finite_set;
+  // auto contain = finite_set->get_container();
+  // for (auto &set : finite_set) {
+  //   std::cout << *set << '\n';
+  // }
   std::cout << "Time elapsed: " << t.elapsed() << " seconds\n";
   return 0;
 }
