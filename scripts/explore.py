@@ -25,13 +25,11 @@ if __name__ == "__main__":
     prec = 10
     R0 = solve(symengine.diff(V(x, s, L), x), x)
     r0 = max([sol.n(prec) for sol in iter(R0.args)])
-    print(R0)
-    print(r0)
     sf = seriescoeff.SeriesCoeff("x", 0, fg(r0 + x) - fg(r0), N, prec)
     sf.taylor(fac=True)
-    sf.p_coeff()
+    # print(sf.p_coeff())
     # sf.c_coeff()
-    print(sf.f_n)
+    # print(sf.f_n)
     # print((sf.P))
     # print(len(sf.P))
 
