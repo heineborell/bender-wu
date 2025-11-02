@@ -6,7 +6,7 @@ int main() {
   Timer t;
   symbol r{"ra"};
   symbol x{"x"};
-  ex radius{r + x + log(-1 + r + x)};
+  ex radius{log(1 + x)};
   std::vector<ex> result{fourierSeries(radius, x, 3)};
   std::vector<std::vector<ex>> coeff{inverseCoeff(result, 3)};
   // ex series_expansion{radius.series(x == 0, 4)};
