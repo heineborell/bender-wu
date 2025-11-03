@@ -6,6 +6,5 @@
 
 using namespace GiNaC;
 
-std::vector<ex> fourierSeries(const ex &func, symbol var, std::size_t order);
-std::vector<std::vector<ex>> inverseCoeff(std::vector<ex> &arr,
-                                          std::size_t order);
+std::vector<ex> fourierSeries(const ex &func, symbol &var, std::size_t order);
+std::vector<std::vector<ex>> pCoeff(std::vector<ex> &arr, std::size_t order);
