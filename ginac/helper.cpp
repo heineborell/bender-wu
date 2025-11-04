@@ -1,9 +1,14 @@
 #include "helper.h"
 
-void printArray(std::vector<ex> &arr, symbol &x) {
-  for (ex &item : arr) {
-    std::cout << evalf(item) << '\n';
-  }
+void printArray(std::vector<ex> &arr, symbol &x, bool eval) {
+  if (eval)
+    for (ex &item : arr) {
+      std::cout << evalf(item) << '\n';
+    }
+  else
+    for (ex &item : arr) {
+      std::cout << (item) << '\n';
+    }
 }
 
 void printDict(std::vector<std::vector<ex>> &dict) {

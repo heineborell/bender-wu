@@ -7,10 +7,11 @@ int main() {
   Timer t;
   symbol r{"ra"};
   symbol x{"x"};
+  int order{300};
   ex radius{x + log(1 + x)};
-  std::vector<ex> result{fourierSeries(radius, x, 5)};
-  std::vector<std::vector<ex>> pcoeff{pCoeff(result, 5)};
-  std::vector<ex> ccoeff{cCoeff(result, pcoeff, radius, x, 5)};
+  std::vector<ex> result{fourierSeries(radius, x, order)};
+  std::vector<std::vector<ex>> pcoeff{pCoeff(result, order)};
+  std::vector<ex> ccoeff{cCoeff(result, pcoeff, radius, x, order)};
   // ex series_expansion{radius.series(x == 0, 4)};
 
   // ex subin{series_to_poly(e1.series(x == 0, 10))};
@@ -18,7 +19,7 @@ int main() {
   // printArray(result);
   // std::cout << series_to_poly(series_expansion) << '\n';
   // printDict(pcoeff);
-  // printArray(ccoeff, x);
+  // printArray(ccoeff, x, false);
   // printArray(result, x);
   std::cout << "Time elapsed: " << t.elapsed() << " seconds\n";
 
