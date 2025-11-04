@@ -33,6 +33,8 @@ int main() {
   // std::cout << t1 / t2 << '\n';
   // std::cout << baz() << '\n';
   std::cout << is_a<numeric>(t3) << '\n';
+  for (std::size_t m{0}; m <= 5; ++m)
+    std::cout << factorial(m + 1) << '\n';
 
   return 0;
 }
