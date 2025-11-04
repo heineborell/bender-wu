@@ -3,7 +3,7 @@
 #include <ginac/pseries.h>
 
 int main() {
-  Digits = 10;
+  Digits = 100;
   Timer t;
   symbol r{"ra"};
   symbol x{"x"};
@@ -19,7 +19,7 @@ int main() {
   // printArray(result);
   // std::cout << series_to_poly(series_expansion) << '\n';
   // printDict(pcoeff);
-  // printArray(ccoeff, x, false);
+  printArray(ccoeff, x, true);
   // printArray(result, x);
   std::cout << "Time elapsed: " << t.elapsed() << " seconds\n";
 
