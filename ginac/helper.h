@@ -1,3 +1,4 @@
+#pragma once
 #include "engine.h"
 #include <chrono>
 #include <iostream>

@@ -69,3 +69,45 @@ std::vector<ex> cCoeff(const std::vector<ex> &f_n_x0,
 
   return c_n;
 }
+
+std::vector<std::vector<ex>> aCoeff(const std::vector<ex> &f_n_x0) {
+  std::vector<std::vector<ex>> A(eLL + 1,
+                                 std::vector<ex>(nu + 3 * eLL + 1)); // A[l,k]
+  ex omega{f_n_x0[2] / factorial(2)};
+  ex sum{0};
+  for (std::size_t l{0}; l <= eLL; ++l) {
+    if (l == 0)
+      A[l][nu] = 1;
+    if (l > 0)
+      A[l][nu] = 0;
+    for (std::size_t k{nu + 3 * eLL}; k >= nu + 1; --k) {
+      if (k + 2 <= nu + 3 * eLL)
+        sum = (k + 2) * (k + 1) * A[l][k + 2];
+      else
+        sum = 0;
+      if (l > 0) {
+        for (std::size_t n{1}; n <= l - 1; ++n) {
+          if (l >= n && k >= n + 2)
+            sum += -2 * f_n_x0[n] * A[l - n][k - n - 2] / factorial(n + 1);
+        }
+      }
+      A[l][k] = sum / (2 * omega * (k - nu));
+    }
+  }
+  return A;
+}
+
+std::vector<ex> Energy(std::vector<std::vector<ex>> &A,
+                       std::vector<ex> &f_n_x0) {
+  std::vector<ex> E(eLL + 1);
+  ex sum{0};
+  for (std::size_t l{0}; l <= eLL; ++l) {
+    sum = -1 / 2 * (nu + 2) * (nu + 1) * A[l][nu + 2];
+    for (std::size_t n{1}; n <= l; ++n) {
+      if (l >= n && nu >= n + 2)
+        sum += f_n_x0[n] * A[l - n][nu - n - 2] / factorial(n + 1);
+    }
+    E[l] = sum;
+  }
+  return E;
+}
