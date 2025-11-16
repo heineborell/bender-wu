@@ -11,13 +11,16 @@ void printArray(std::vector<ex> &arr, symbol &x, bool eval) {
     }
 }
 
-void printDict(std::vector<std::vector<ex>> &dict) {
+void printDict(std::vector<std::vector<ex>> &dict, bool eval) {
   std::size_t rows{dict.size()};
   std::size_t columns{dict[0].size()};
   std::cout << "the dictionary is " << rows - 1 << 'x' << columns - 1 << '\n';
   for (std::size_t i{0}; i < rows; ++i) {
     for (std::size_t j{0}; j < columns; ++j) {
-      std::cout << '(' << i << ',' << j << "): " << evalf(dict[i][j]) << '\n';
+      if (eval)
+        std::cout << '(' << i << ',' << j << "): " << evalf(dict[i][j]) << '\n';
+      else
+        std::cout << '(' << i << ',' << j << "): " << (dict[i][j]) << '\n';
     }
   }
 }

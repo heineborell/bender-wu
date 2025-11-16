@@ -70,44 +70,44 @@ std::vector<ex> cCoeff(const std::vector<ex> &f_n_x0,
   return c_n;
 }
 
-std::vector<std::vector<ex>> aCoeff(const std::vector<ex> &f_n_x0) {
+std::vector<std::vector<ex>> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
   std::vector<std::vector<ex>> A(eLL + 1,
                                  std::vector<ex>(nu + 3 * eLL + 1)); // A[l,k]
-  ex omega{f_n_x0[2] / factorial(2)};
   ex sum{0};
-  for (std::size_t l{0}; l <= eLL; ++l) {
-    if (l == 0)
-      A[l][nu] = 1;
-    if (l > 0)
-      A[l][nu] = 0;
-    for (std::size_t k{nu + 3 * eLL}; k >= nu + 1; --k) {
-      if (k + 2 <= nu + 3 * eLL)
-        sum = (k + 2) * (k + 1) * A[l][k + 2];
-      else
-        sum = 0;
-      if (l > 0) {
-        for (std::size_t n{1}; n <= l - 1; ++n) {
-          if (l >= n && k >= n + 2)
-            sum += -2 * f_n_x0[n] * A[l - n][k - n - 2] / factorial(n + 1);
-        }
+  for (std::size_t l{1}; l <= eLL; ++l) {
+    // Fix normalisation
+    A[0][nu] = 1;
+    A[l][nu] = 0;
+    // Compute A[l][k] for k>nu, l>0
+    for (std::size_t k{nu + 3 * l}; k > nu; --k) {
+      if (k + 2 <= nu + 3 * l)
+        sum = numeric(k + 2) * numeric(k + 1) * A[l][k + 2];
+      for (std::size_t n{1}; n <= l; ++n) {
+        if (l >= n && k >= n + 2)
+          sum += -numeric(2) * f_n_x0[n + 2] * A[l - n][k - n - 2] /
+                 factorial(n + 2);
       }
-      A[l][k] = sum / (2 * omega * (k - nu));
+      A[l][k] = sum / (2 * (static_cast<int>(k) - static_cast<int>(nu)));
+      A[l][k] = A[l][k] *
+                (pow(sqrt(omega), static_cast<int>(k) - static_cast<int>(l)));
     }
   }
   return A;
 }
 
-std::vector<ex> Energy(std::vector<std::vector<ex>> &A,
-                       std::vector<ex> &f_n_x0) {
+std::vector<ex> Energy(std::vector<std::vector<ex>> &A, std::vector<ex> &f_n_x0,
+                       ex &omega) {
   std::vector<ex> E(eLL + 1);
   ex sum{0};
-  for (std::size_t l{0}; l <= eLL; ++l) {
-    sum = -1 / 2 * (nu + 2) * (nu + 1) * A[l][nu + 2];
+  E[0] = omega * (nu + numeric(1) / 2);
+  for (std::size_t l{1}; l <= eLL; ++l) {
+    sum = -numeric(1) / 2 * numeric(nu + 2) * numeric(nu + 1) * A[l][nu + 2];
     for (std::size_t n{1}; n <= l; ++n) {
       if (l >= n && nu >= n + 2)
-        sum += f_n_x0[n] * A[l - n][nu - n - 2] / factorial(n + 1);
+        sum += f_n_x0[n + 2] * A[l - n][nu - n - 2] / factorial(n + 2);
     }
     E[l] = sum;
+    E[l] = E[l] / pow(omega, l);
   }
   return E;
 }

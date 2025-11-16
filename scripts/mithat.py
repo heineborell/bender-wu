@@ -8,7 +8,6 @@ def V(r):
 
 
 if __name__ == "__main__":
-
     nu = 0
     eLL = 10
     N = nu + (eLL + 2)
@@ -28,16 +27,13 @@ if __name__ == "__main__":
     e_array[0] = omega * (nu + 1 / 2)
 
     A = dict.fromkeys(
-        [
-            (L, k)
-            for L in range(0, eLL + 1)
-            for k in range(-(nu + 3 * (eLL + 1)), nu + 3 * (eLL + 1))
-        ],
+        [(L, k) for L in range(0, eLL + 1) for k in range(-(nu + 3 * (eLL + 1)), nu + 3 * (eLL + 1))],
         0,
     )
 
     A[(0, nu)] = 1
 
+    print(v_array)
     # Computing A[(l,k)] from k = nu+3l down to k = nu
     #    for L in range(1, eLL + 1):
     #        print("for L", L)
@@ -51,6 +47,7 @@ if __name__ == "__main__":
             for n in range(1, L + 1):
                 A[(L, k)] = A[(L, k)] - 2 * v_array[n] * A[(L - n, k - n - 2)]
             A[(L, k)] = 1 / (2 * (k - nu) * omega) * A[(L, k)]
+    print(A)
 
     # Computing E (energy) using the A[(l,k)] we found above
     for L in range(1, eLL + 1):
@@ -58,5 +55,4 @@ if __name__ == "__main__":
         for n in range(1, L + 1):
             e_array[L] = e_array[L] + v_array[n] * A[(L - n, nu - n - 2)]
 
-    print(A[4, 4])
-    print(e_array)
+    # print(e_array)
