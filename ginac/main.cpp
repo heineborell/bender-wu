@@ -7,10 +7,11 @@ int main() {
   Timer t;
   symbol r{"ra"};
   symbol x{"x"};
-  int order{20};
+  int order{30};
   ex radius{x * x + x * x * x * x};
-  ex omega{sqrt(radius.diff(x, 2).subs(x == 0))};
+  ex omega{sqrt(radius.diff(x, 2)).subs(x == 0)};
   ex potential{radius / (omega * omega)};
+  // ex potential{radius};
   std::vector<ex> result{fourierSeries(potential, x, order)};
   // std::vector<std::vector<ex>> pcoeff{pCoeff(result, order)};
   // std::vector<ex> ccoeff{cCoeff(result, pcoeff, radius, x, order)};
@@ -21,7 +22,7 @@ int main() {
   // ex subin{series_to_poly(e1.series(x == 0, 10))};
   // std::cout << series_to_poly(series_expansion) << '\n';
   //
-  printDict(acoeff, false);
+  // printDict(acoeff, false);
   printArray(energy, x, true);
   // printArray(result, x, false);
   // printArray(result, x);

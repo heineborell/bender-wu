@@ -1,4 +1,5 @@
 #include "engine.h"
+#include <algorithm>
 
 std::vector<ex> fourierSeries(const ex &func, const symbol &var,
                               std::size_t order) {
@@ -80,6 +81,7 @@ std::vector<std::vector<ex>> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
     A[l][nu] = 0;
     // Compute A[l][k] for k>nu, l>0
     for (std::size_t k{nu + 3 * l}; k > nu; --k) {
+      A[0][k] = 0; // Hermite is bounded with nu
       if (k + 2 <= nu + 3 * l)
         sum = numeric(k + 2) * numeric(k + 1) * A[l][k + 2];
       for (std::size_t n{1}; n <= l; ++n) {
@@ -87,9 +89,10 @@ std::vector<std::vector<ex>> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
           sum += -numeric(2) * f_n_x0[n + 2] * A[l - n][k - n - 2] /
                  factorial(n + 2);
       }
-      A[l][k] = sum / (2 * (static_cast<int>(k) - static_cast<int>(nu)));
-      A[l][k] = A[l][k] *
-                (pow(sqrt(omega), static_cast<int>(k) - static_cast<int>(l)));
+      A[l][k] = sum / numeric(2 * (static_cast<int>(k) - static_cast<int>(nu)));
+      // A[l][k] = A[l][k] / omega;
+      // A[l][k] *= (pow(sqrt(omega), static_cast<int>(k) -
+      // static_cast<int>(l)));
     }
   }
   return A;
@@ -101,13 +104,15 @@ std::vector<ex> Energy(std::vector<std::vector<ex>> &A, std::vector<ex> &f_n_x0,
   ex sum{0};
   E[0] = omega * (nu + numeric(1) / 2);
   for (std::size_t l{1}; l <= eLL; ++l) {
-    sum = -numeric(1) / 2 * numeric(nu + 2) * numeric(nu + 1) * A[l][nu + 2];
-    for (std::size_t n{1}; n <= l; ++n) {
-      if (l >= n && nu >= n + 2)
+    if (l % 2 == 0) {
+      sum = -numeric(nu + 2) * numeric(nu + 1) * A[l][nu + 2] / 2;
+      for (std::size_t n{1};
+           n <= std::min(static_cast<int>(l), static_cast<int>(nu) - 2); ++n) {
         sum += f_n_x0[n + 2] * A[l - n][nu - n - 2] / factorial(n + 2);
+      }
+      E[l / 2] = sum;
+      // E[l / 2] = E[l / 2] / pow(omega, l);
     }
-    E[l] = sum;
-    E[l] = E[l] / pow(omega, l);
   }
   return E;
 }

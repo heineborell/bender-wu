@@ -8,7 +8,7 @@
 using namespace GiNaC;
 
 inline constexpr unsigned int nu{3};
-inline constexpr unsigned int eLL{5};
+inline constexpr unsigned int eLL{15};
 
 std::vector<ex> fourierSeries(const ex &func, const symbol &var,
                               std::size_t order);
