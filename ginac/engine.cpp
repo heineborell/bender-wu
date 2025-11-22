@@ -1,5 +1,6 @@
 #include "engine.h"
 #include <algorithm>
+#include <cstddef>
 
 std::vector<ex> fourierSeries(const ex &func, const symbol &var,
                               std::size_t order) {
@@ -71,28 +72,76 @@ std::vector<ex> cCoeff(const std::vector<ex> &f_n_x0,
   return c_n;
 }
 
-std::vector<std::vector<ex>> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
-  std::vector<std::vector<ex>> A(eLL + 1,
-                                 std::vector<ex>(nu + 3 * eLL + 1)); // A[l,k]
+std::vector<std::vector<ex>> aCoeff(const std::vector<ex> &f_n_x0, ex &omega,
+                                    int order) {
+  std::vector<std::vector<ex>> A(
+      eLL + 1,
+      std::vector<ex>(
+          nu + 3 * eLL +
+          3));  // A[l,k] increased the size because of k+2 term below
+  A[0][nu] = 1; // Normalization
+  std::vector<ex> E(eLL + 1); // Energy
+  E[0] = omega * (nu + numeric(1) / 2);
   ex sum{0};
-  for (std::size_t l{1}; l <= eLL; ++l) {
-    // Fix normalisation
-    A[0][nu] = 1;
-    A[l][nu] = 0;
-    // Compute A[l][k] for k>nu, l>0
-    for (std::size_t k{nu + 3 * l}; k > nu; --k) {
-      A[0][k] = 0; // Hermite is bounded with nu
-      if (k + 2 <= nu + 3 * l)
+  for (std::size_t l{0}; l <= eLL; ++l) {
+    if (l > 0) {
+      A[l][nu] = 0;
+      // Compute A[l][k] for k>nu, l>0
+      for (std::size_t k{nu + 3 * l}; k > nu; --k) {
+        A[0][k] = 0; // Hermite is bounded with nu
         sum = numeric(k + 2) * numeric(k + 1) * A[l][k + 2];
-      for (std::size_t n{1}; n <= l; ++n) {
-        if (l >= n && k >= n + 2)
+        for (int n{1}; n <= std::min({static_cast<int>(k) - 2,
+                                      static_cast<int>(l), order});
+             ++n) {
           sum += -numeric(2) * f_n_x0[n + 2] * A[l - n][k - n - 2] /
                  factorial(n + 2);
+        }
+        for (int n{1}; n <= l / 2; ++n) {
+          sum += 2 * E[n] * A[l - 2 * n][k];
+          // std::cout << l << k << n << "energy " << 2 * E[n] * A[l - 2 * n][k]
+          //           << '\n';
+        }
+        A[l][k] =
+            sum / numeric(2 * (static_cast<int>(k) - static_cast<int>(nu)));
+
+        if (l % 2 == 0) {
+          sum = -numeric(nu + 2) * numeric(nu + 1) * A[l][nu + 2] / 2;
+          for (int n{1};
+               n <= std::min(static_cast<int>(l), static_cast<int>(nu) - 2);
+               ++n) {
+            sum += f_n_x0[n + 2] * A[l - n][nu - n - 2] / factorial(n + 2);
+          }
+          E[l / 2] = sum;
+          // E[l / 2] = E[l / 2] / pow(omega, l / 2);
+        }
+        // A[l][k] = A[l][k] / omega;
+        // A[l][k] *= (pow(sqrt(omega), static_cast<int>(k) -
+        // static_cast<int>(l)));
       }
-      A[l][k] = sum / numeric(2 * (static_cast<int>(k) - static_cast<int>(nu)));
-      // A[l][k] = A[l][k] / omega;
-      // A[l][k] *= (pow(sqrt(omega), static_cast<int>(k) -
-      // static_cast<int>(l)));
+      // std::cout << E[l / 2].evalf() << '\n';
+      // std::cout << (E[l / 2] / omega).evalf() << '\n';
+      // // std::cout << omega << '\n';
+    }
+
+    if (nu >= 1) {
+      for (std::size_t k{nu - 1}; k > 0; --k) {
+        // sum = numeric(k + 2) * numeric(k + 1) * A[l][k + 2];
+        // for (int n{1};
+        //      n <= std::min({static_cast<int>(k) - 2, static_cast<int>(l)});
+        //      ++n) {
+        std::cout << k << '\n';
+        //   sum += -numeric(2) * f_n_x0[n + 2] * A[l - n][k - n - 2] /
+        //          factorial(n + 2);
+        // }
+        // for (int n{1}; n <= l / 2; ++n) {
+        //   sum += 2 * E[n] * A[l - 2 * n][k];
+        //   // std::cout << l << k << n << "energy " << 2 * E[n] * A[l - 2 *
+        //   n][k]
+        //   //           << '\n';
+        // }
+        // A[l][k] =
+        //     sum / numeric(2 * (static_cast<int>(k) - static_cast<int>(nu)));
+      }
     }
   }
   return A;
@@ -106,12 +155,12 @@ std::vector<ex> Energy(std::vector<std::vector<ex>> &A, std::vector<ex> &f_n_x0,
   for (std::size_t l{1}; l <= eLL; ++l) {
     if (l % 2 == 0) {
       sum = -numeric(nu + 2) * numeric(nu + 1) * A[l][nu + 2] / 2;
-      for (std::size_t n{1};
+      for (int n{1};
            n <= std::min(static_cast<int>(l), static_cast<int>(nu) - 2); ++n) {
         sum += f_n_x0[n + 2] * A[l - n][nu - n - 2] / factorial(n + 2);
       }
       E[l / 2] = sum;
-      // E[l / 2] = E[l / 2] / pow(omega, l);
+      // E[l / 2] = E[l / 2] / pow(omega, l / 2);
     }
   }
   return E;
