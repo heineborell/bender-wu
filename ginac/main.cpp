@@ -9,7 +9,7 @@ int main() {
   symbol x{"x"};
   ex radius{(x * x) + (x * x * x * x)};
   ex omega{sqrt(radius.diff(x, 2)).subs(x == 0)};
-  ex potential{radius / (omega * omega)};
+  ex potential{radius};
   std::vector<ex> result{vSeries(potential, x, 2 * expansionOrder)};
   // std::vector<std::vector<ex>> pcoeff{pCoeff(result, order)};
   // std::vector<ex> ccoeff{cCoeff(result, pcoeff, radius, x, order)};

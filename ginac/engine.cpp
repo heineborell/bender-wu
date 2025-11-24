@@ -119,7 +119,7 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
         for (int n{1}; n <= l / 2; ++n) {
           sum += 2 * E.data()[n] * A.data()[l - 2 * n].data()[k];
         }
-        A.data()[l].data()[k] = sum / numeric(2 * (k - nu));
+        A.data()[l].data()[k] = sum / (omega * numeric(2 * (k - nu)));
 
         if (l % 2 == 0) {
           sum = -numeric(nu + 2) * numeric(nu + 1) *
@@ -128,15 +128,8 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
             sum += f_n_x0.data()[n] * A.data()[l - n].data()[nu - n - 2];
           }
           E.data()[l / 2] = sum;
-          // E[l / 2] = E[l / 2] / pow(omega, l / 2);
         }
-        // A[l][k] = A[l][k] / omega;
-        // A[l][k] *= (pow(sqrt(omega), static_cast<int>(k) -
-        // static_cast<int>(l)));
       }
-      // std::cout << E[l / 2].evalf() << '\n';
-      // std::cout << (E[l / 2] / omega).evalf() << '\n';
-      // // std::cout << omega << '\n';
     }
 
     for (int k{nu - 1}; k >= 0; --k) {
@@ -147,28 +140,8 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
       }
       for (int n{1}; n <= l / 2; ++n) {
         sum += 2 * E.data()[n] * A.data()[l - 2 * n].data()[k];
-        // std::cout << l << k << n << "energy " << 2 * E[n] * A[l - 2 * n][k]
-        // << '\n';
       }
-      A.data()[l].data()[k] = sum / numeric(2 * (k - nu));
-    }
-  }
-  return E;
-}
-
-std::vector<ex> Energy(std::vector<std::vector<ex>> &A, std::vector<ex> &f_n_x0,
-                       ex &omega) {
-  std::vector<ex> E(lmax + 1);
-  ex sum{0};
-  E[0] = omega * (nu + numeric(1) / 2);
-  for (int l{1}; l <= lmax; ++l) {
-    if (l % 2 == 0) {
-      sum = -numeric(nu + 2) * numeric(nu + 1) * A.data()[l].data()[nu + 2] / 2;
-      for (int n{1}; n <= std::min(l, nu - 2); ++n) {
-        sum += f_n_x0.data()[n] * A.data()[l - n].data()[nu - n - 2];
-      }
-      E.data()[l / 2] = sum;
-      // E[l / 2] = E[l / 2] / pow(omega, l / 2);
+      A.data()[l].data()[k] = sum / (omega * numeric(2 * (k - nu)));
     }
   }
   return E;
