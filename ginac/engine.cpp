@@ -19,6 +19,23 @@ std::vector<ex> fourierSeries(const ex &func, const symbol &var, int order) {
   return f_n_x0;
 }
 
+std::vector<ex> vSeries(const ex &func, const symbol &var, int order) {
+  std::vector<ex> f_n(static_cast<std::size_t>(order + 1));
+  std::vector<ex> f_n_x0(static_cast<std::size_t>(order + 1));
+
+  f_n[0] = func; // vn begins at 1 order with third derivative i.e.
+                 // D[f,{x,i+2}]/(i+2)! {i,1,lmax}
+  f_n_x0[0] = f_n[0].subs(var == 0);
+  f_n[1] = func.diff(var, 3) / factorial(3); // 3. order
+  f_n_x0[1] = f_n[1].subs(var == 0);
+
+  for (int i{2}; i <= order; ++i) {
+    f_n.data()[i] = f_n.data()[i - 1].diff(var) / (i + 2);
+    f_n_x0.data()[i] = f_n.data()[i].subs(var == 0);
+  }
+
+  return f_n_x0;
+}
 std::vector<std::vector<ex>> pCoeff(const std::vector<ex> &f_n_x0,
                                     std::size_t order) {
   std::vector<std::vector<ex>> dict(
@@ -71,19 +88,19 @@ std::vector<ex> cCoeff(const std::vector<ex> &f_n_x0,
   return c_n;
 }
 
-std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega, int order) {
+std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
   std::vector<std::vector<ex>> A(
-      eLL + 1, std::vector<ex>(
-                   nu + 3 * eLL +
-                   3)); // A[l,k] increased the size because of k+2 term below
+      lmax + 1, std::vector<ex>(
+                    nu + 3 * lmax +
+                    3)); // A[l,k] increased the size because of k+2 term below
 
   A[0][nu] = 1; // Normalization
 
-  std::vector<ex> E(eLL + 1); // Energy
+  std::vector<ex> E(lmax / 2 + 1); // Energy
   E[0] = omega * (nu + numeric(1) / 2);
   ex sum{0};
 
-  for (int l{0}; l <= eLL; ++l) {
+  for (int l{0}; l <= lmax; ++l) {
     if (l > 0) {
       A.data()[l][nu] = 0;
       // Compute A[l][k] for k>nu, l>0
@@ -91,9 +108,12 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega, int order) {
         A.data()[0].data()[k] = 0; // Hermite is bounded with nu
         sum = numeric(k + 2) * numeric(k + 1) * A.data()[l].data()[k + 2];
 
-        for (int n{1}; n <= std::min({k - 2, l, order}); ++n) {
-          sum += -numeric(2) * f_n_x0.data()[n + 2] *
-                 A.data()[l - n].data()[k - n - 2] / factorial(n + 2);
+        for (int n{1};
+             n <=
+             std::min({k - 2, l, static_cast<int>(std::ssize(f_n_x0) - 1)});
+             ++n) {
+          sum += -numeric(2) * f_n_x0.data()[n] *
+                 A.data()[l - n].data()[k - n - 2];
         }
 
         for (int n{1}; n <= l / 2; ++n) {
@@ -105,8 +125,7 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega, int order) {
           sum = -numeric(nu + 2) * numeric(nu + 1) *
                 A.data()[l].data()[nu + 2] / 2;
           for (int n{1}; n <= std::min(l, nu - 2); ++n) {
-            sum += f_n_x0.data()[n + 2] * A.data()[l - n].data()[nu - n - 2] /
-                   factorial(n + 2);
+            sum += f_n_x0.data()[n] * A.data()[l - n].data()[nu - n - 2];
           }
           E.data()[l / 2] = sum;
           // E[l / 2] = E[l / 2] / pow(omega, l / 2);
@@ -123,8 +142,8 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega, int order) {
     for (int k{nu - 1}; k >= 0; --k) {
       sum = numeric(k + 2) * numeric(k + 1) * A.data()[l].data()[k + 2];
       for (int n{1}; n <= std::min({k - 2, l}); ++n) {
-        sum += -numeric(2) * f_n_x0.data()[n + 2] *
-               A.data()[l - n].data()[k - n - 2] / factorial(n + 2);
+        sum +=
+            -numeric(2) * f_n_x0.data()[n] * A.data()[l - n].data()[k - n - 2];
       }
       for (int n{1}; n <= l / 2; ++n) {
         sum += 2 * E.data()[n] * A.data()[l - 2 * n].data()[k];
@@ -139,15 +158,14 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega, int order) {
 
 std::vector<ex> Energy(std::vector<std::vector<ex>> &A, std::vector<ex> &f_n_x0,
                        ex &omega) {
-  std::vector<ex> E(eLL + 1);
+  std::vector<ex> E(lmax + 1);
   ex sum{0};
   E[0] = omega * (nu + numeric(1) / 2);
-  for (int l{1}; l <= eLL; ++l) {
+  for (int l{1}; l <= lmax; ++l) {
     if (l % 2 == 0) {
       sum = -numeric(nu + 2) * numeric(nu + 1) * A.data()[l].data()[nu + 2] / 2;
       for (int n{1}; n <= std::min(l, nu - 2); ++n) {
-        sum += f_n_x0.data()[n + 2] * A.data()[l - n].data()[nu - n - 2] /
-               factorial(n + 2);
+        sum += f_n_x0.data()[n] * A.data()[l - n].data()[nu - n - 2];
       }
       E.data()[l / 2] = sum;
       // E[l / 2] = E[l / 2] / pow(omega, l / 2);
