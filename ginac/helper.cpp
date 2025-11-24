@@ -1,6 +1,6 @@
 #include "helper.h"
 
-void printArray(std::vector<ex> &arr, symbol &x, bool eval) {
+void printArray(std::vector<ex> &arr, bool eval) {
   if (eval)
     for (ex &item : arr) {
       std::cout << evalf(item) << '\n';

@@ -19,5 +19,5 @@ public:
   }
 };
 
-void printArray(std::vector<ex> &arr, symbol &x, bool eval);
+void printArray(std::vector<ex> &arr, bool eval);
 void printDict(std::vector<std::vector<ex>> &dict, bool eval);

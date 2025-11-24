@@ -11,11 +11,10 @@ int main() {
   ex radius{x * x + x * x * x * x};
   ex omega{sqrt(radius.diff(x, 2)).subs(x == 0)};
   ex potential{radius / (omega * omega)};
-  // ex potential{radius};
   std::vector<ex> result{fourierSeries(potential, x, order)};
   // std::vector<std::vector<ex>> pcoeff{pCoeff(result, order)};
   // std::vector<ex> ccoeff{cCoeff(result, pcoeff, radius, x, order)};
-  std::vector<std::vector<ex>> acoeff{aCoeff(result, omega, order)};
+  std::vector<ex> acoeff{aCoeff(result, omega, order)};
   // std::vector<ex> energy{Energy(acoeff, result, omega)};
   // ex series_expansion{radius.series(x == 0, 4)};
 
@@ -23,7 +22,7 @@ int main() {
   // std::cout << series_to_poly(series_expansion) << '\n';
   //
   // printDict(acoeff, false);
-  // printArray(energy, x, true);
+  printArray(acoeff, true);
   // printArray(result, x, false);
   // printArray(result, x);
   std::cout << "Time elapsed: " << t.elapsed() << " seconds\n";
