@@ -8,7 +8,7 @@
 using namespace GiNaC;
 
 inline constexpr int nu{2};
-inline constexpr int eLL{4};
+inline constexpr int eLL{10};
 
 std::vector<ex> fourierSeries(const ex &func, const symbol &var, int order);
 std::vector<std::vector<ex>> pCoeff(const std::vector<ex> &arr,

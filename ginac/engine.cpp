@@ -76,10 +76,13 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega, int order) {
       eLL + 1, std::vector<ex>(
                    nu + 3 * eLL +
                    3)); // A[l,k] increased the size because of k+2 term below
-  A[0][nu] = 1;         // Normalization
+
+  A[0][nu] = 1; // Normalization
+
   std::vector<ex> E(eLL + 1); // Energy
   E[0] = omega * (nu + numeric(1) / 2);
   ex sum{0};
+
   for (int l{0}; l <= eLL; ++l) {
     if (l > 0) {
       A.data()[l][nu] = 0;
@@ -87,14 +90,14 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega, int order) {
       for (int k{nu + 3 * l}; k > nu; --k) {
         A.data()[0].data()[k] = 0; // Hermite is bounded with nu
         sum = numeric(k + 2) * numeric(k + 1) * A.data()[l].data()[k + 2];
+
         for (int n{1}; n <= std::min({k - 2, l, order}); ++n) {
           sum += -numeric(2) * f_n_x0.data()[n + 2] *
                  A.data()[l - n].data()[k - n - 2] / factorial(n + 2);
         }
+
         for (int n{1}; n <= l / 2; ++n) {
           sum += 2 * E.data()[n] * A.data()[l - 2 * n].data()[k];
-          // std::cout << l << k << n << "energy " << 2 * E[n] * A[l - 2 * n][k]
-          //           << '\n';
         }
         A.data()[l].data()[k] = sum / numeric(2 * (k - nu));
 
@@ -117,20 +120,18 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega, int order) {
       // // std::cout << omega << '\n';
     }
 
-    if (nu >= 1) {
-      for (int k{nu - 1}; k > 0; --k) {
-        sum = numeric(k + 2) * numeric(k + 1) * A.data()[l].data()[k + 2];
-        for (int n{1}; n <= std::min({k - 2, l}); ++n) {
-          sum += -numeric(2) * f_n_x0.data()[n + 2] *
-                 A.data()[l - n].data()[k - n - 2] / factorial(n + 2);
-        }
-        for (int n{1}; n <= l / 2; ++n) {
-          sum += 2 * E.data()[n] * A.data()[l - 2 * n].data()[k];
-          // std::cout << l << k << n << "energy " << 2 * E[n] * A[l - 2 * n][k]
-          // << '\n';
-        }
-        A.data()[l].data()[k] = sum / numeric(2 * (k - nu));
+    for (int k{nu - 1}; k >= 0; --k) {
+      sum = numeric(k + 2) * numeric(k + 1) * A.data()[l].data()[k + 2];
+      for (int n{1}; n <= std::min({k - 2, l}); ++n) {
+        sum += -numeric(2) * f_n_x0.data()[n + 2] *
+               A.data()[l - n].data()[k - n - 2] / factorial(n + 2);
       }
+      for (int n{1}; n <= l / 2; ++n) {
+        sum += 2 * E.data()[n] * A.data()[l - 2 * n].data()[k];
+        // std::cout << l << k << n << "energy " << 2 * E[n] * A[l - 2 * n][k]
+        // << '\n';
+      }
+      A.data()[l].data()[k] = sum / numeric(2 * (k - nu));
     }
   }
   return E;
