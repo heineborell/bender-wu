@@ -89,18 +89,16 @@ std::vector<ex> cCoeff(const std::vector<ex> &f_n_x0,
 }
 
 std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
-  std::vector<std::vector<ex>> A(
-      lmax + 1, std::vector<ex>(
-                    nu + 3 * lmax +
-                    3)); // A[l,k] increased the size because of k+2 term below
+  std::vector<std::vector<ex>> A(lmax + 1, std::vector<ex>(nu + 3 * lmax + 3));
 
   A[0][nu] = 1; // Normalization
 
-  std::vector<ex> E(lmax / 2 + 1); // Energy
-  E[0] = omega * (nu + numeric(1) / 2);
+  std::vector<ex> E(lmax / 2 + 1);      // Energy
+  E[0] = omega * (nu + numeric(1) / 2); // 0.th level
   ex sum{0};
 
-  for (int l{0}; l <= lmax; ++l) {
+  for (int l{0}; l <= lmax; l += 2) {
+    std::cout << "Computing order " << l / 2 - 1 << '\n';
     if (l > 0) {
       A.data()[l][nu] = 0;
       // Compute A[l][k] for k>nu, l>0

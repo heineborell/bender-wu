@@ -3,7 +3,7 @@
 #include <ginac/pseries.h>
 
 int main() {
-  Digits = 10;
+  Digits = 20;
   Timer t;
   symbol r{"ra"};
   symbol x{"x"};
