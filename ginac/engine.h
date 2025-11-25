@@ -1,11 +1,23 @@
 #pragma once
+
+// Disable *all* warnings for GiNaC on Clang (macOS) since macOS is clang is
+// more strict than the Linux g++
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
+#endif
+
 #ifdef IN_GINAC
 #include "ginac.h"
 #else
 #include <ginac/ginac.h>
 #endif
-#include <vector>
 
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+
+#include <vector>
 using namespace GiNaC;
 
 inline constexpr int nu{3};
