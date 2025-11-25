@@ -7,23 +7,12 @@ int main() {
   Timer t;
   symbol r{"ra"};
   symbol x{"x"};
-  ex radius{(x * x) + (x * x * x * x)};
-  ex omega{sqrt(radius.diff(x, 2)).subs(x == 0)};
-  ex potential{radius};
+  ex potential{(x * x) + (x * x * x * x)};
+  ex omega{sqrt(potential.diff(x, 2)).subs(x == 0)};
   std::vector<ex> result{vSeries(potential, x, 2 * expansionOrder)};
-  // std::vector<std::vector<ex>> pcoeff{pCoeff(result, order)};
-  // std::vector<ex> ccoeff{cCoeff(result, pcoeff, radius, x, order)};
-  std::vector<ex> acoeff{aCoeff(result, omega)};
-  // std::vector<ex> energy{Energy(acoeff, result, omega)};
-  // ex series_expansion{radius.series(x == 0, 4)};
+  std::vector<ex> ecoeff{energy(result, omega)};
 
-  // ex subin{series_to_poly(e1.series(x == 0, 10))};
-  // std::cout << series_to_poly(series_expansion) << '\n';
-  //
-  // printDict(acoeff, false);
-  printArray(acoeff, true);
-  // printArray(result, x, false);
-  // printArray(result, x);
+  printArray(ecoeff, true);
   std::cout << "Time elapsed: " << t.elapsed() << " seconds\n";
 
   return 0;
