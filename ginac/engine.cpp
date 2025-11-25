@@ -117,7 +117,7 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
         for (int n{1}; n <= l / 2; ++n) {
           sum += 2 * E.data()[n] * A.data()[l - 2 * n].data()[k];
         }
-        A.data()[l].data()[k] = sum / (omega * numeric(2 * (k - nu)));
+        A.data()[l].data()[k] = evalf(sum / (omega * numeric(2 * (k - nu))));
 
         if (l % 2 == 0) {
           sum = -numeric(nu + 2) * numeric(nu + 1) *
@@ -125,7 +125,7 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
           for (int n{1}; n <= std::min(l, nu - 2); ++n) {
             sum += f_n_x0.data()[n] * A.data()[l - n].data()[nu - n - 2];
           }
-          E.data()[l / 2] = sum;
+          E.data()[l / 2] = evalf(sum);
         }
       }
     }
@@ -139,7 +139,7 @@ std::vector<ex> aCoeff(const std::vector<ex> &f_n_x0, ex &omega) {
       for (int n{1}; n <= l / 2; ++n) {
         sum += 2 * E.data()[n] * A.data()[l - 2 * n].data()[k];
       }
-      A.data()[l].data()[k] = sum / (omega * numeric(2 * (k - nu)));
+      A.data()[l].data()[k] = evalf(sum / (omega * numeric(2 * (k - nu))));
     }
   }
   return E;

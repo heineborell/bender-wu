@@ -9,7 +9,7 @@
 using namespace GiNaC;
 
 inline constexpr int nu{3};
-inline constexpr int expansionOrder{100};
+inline constexpr int expansionOrder{300};
 inline constexpr int lmax{2 * expansionOrder};
 
 std::vector<ex> fourierSeries(const ex &func, const symbol &var, int order);
