@@ -107,8 +107,7 @@ std::vector<ex> cCoeff(const std::vector<ex> &f_n_x0,
 }
 
 std::vector<ex> energy(const std::vector<ex> &f_n_x0, ex &omega) {
-  evenCheck(f_n_x0);
-
+  evenCheck(f_n_x0); // set lstep by checking evenness
   std::vector<std::vector<ex>> A(lmax + 1, std::vector<ex>(nu + 3 * lmax + 3));
   A[0][nu] = 1; // Normalization
 
