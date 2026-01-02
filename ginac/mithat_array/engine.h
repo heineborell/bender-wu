@@ -28,11 +28,13 @@ inline int lstep{2};
 
 std::array<ex, expansionOrder + 1> fourierSeries(const ex &func,
                                                  const symbol &var);
-std::vector<ex> vSeries(const ex &func, const symbol &var);
+std::array<ex, 2 * expansionOrder + 1> vSeries(const ex &func,
+                                               const symbol &var);
 std::vector<std::vector<ex>> pCoeff(const std::vector<ex> &arr,
                                     std::size_t order);
 std::vector<ex> cCoeff(const std::vector<ex> &f_n,
                        const std::vector<std::vector<ex>> &dict, const ex &func,
                        const symbol &var, std::size_t order);
 void evenCheck(const std::vector<ex> &f_n_x0);
-std::vector<ex> energy(const std::vector<ex> &f_n_x0, ex &omega);
+std::vector<ex> energy(const std::array<ex, 2 * expansionOrder + 1> &f_n_x0,
+                       ex &omega);

@@ -20,9 +20,10 @@ std::array<ex, expansionOrder + 1> fourierSeries(const ex &func,
   return f_n_x0;
 }
 
-std::vector<ex> vSeries(const ex &func, const symbol &var) {
-  std::vector<ex> f_n(static_cast<std::size_t>(2 * expansionOrder + 1));
-  std::vector<ex> f_n_x0(static_cast<std::size_t>(2 * expansionOrder + 1));
+std::array<ex, 2 * expansionOrder + 1> vSeries(const ex &func,
+                                               const symbol &var) {
+  std::array<ex, 2 * expansionOrder + 1> f_n{};
+  std::array<ex, 2 * expansionOrder + 1> f_n_x0{};
 
   f_n[0] = func; // vn begins at 1 order with third derivative i.e.
                  // D[f,{x,i+2}]/(i+2)! {i,1,lmax}
@@ -38,7 +39,7 @@ std::vector<ex> vSeries(const ex &func, const symbol &var) {
   return f_n_x0;
 }
 
-void evenCheck(const std::vector<ex> &f_n_x0) {
+void evenCheck(const std::array<ex, 2 * expansionOrder + 1> &f_n_x0) {
   ex sum{};
   for (int i{1}; i <= lmax; i += 2) {
     sum += f_n_x0.data()[i] * f_n_x0.data()[i];
@@ -107,7 +108,8 @@ std::vector<ex> cCoeff(const std::vector<ex> &f_n_x0,
   return c_n;
 }
 
-std::vector<ex> energy(const std::vector<ex> &f_n_x0, ex &omega) {
+std::vector<ex> energy(const std::array<ex, 2 * expansionOrder + 1> &f_n_x0,
+                       ex &omega) {
   evenCheck(f_n_x0); // set lstep by checking evenness
   std::vector<std::vector<ex>> A(lmax + 1, std::vector<ex>(nu + 3 * lmax + 3));
   A[0][nu] = 1; // Normalization
