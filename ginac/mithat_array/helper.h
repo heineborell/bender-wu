@@ -19,5 +19,5 @@ public:
   }
 };
 
-void printArray(std::vector<ex> &arr, bool eval);
+void printArray(std::array<ex, lmax / 2 + 1> &arr, bool eval);
 void printDict(std::vector<std::vector<ex>> &dict, bool eval);

@@ -1,6 +1,6 @@
 #include "helper.h"
 
-void printArray(std::vector<ex> &arr, bool eval) {
+void printArray(std::array<ex, lmax / 2 + 1> &arr, bool eval) {
   if (eval)
     for (ex &item : arr) {
       std::cout << evalf(item) << '\n';

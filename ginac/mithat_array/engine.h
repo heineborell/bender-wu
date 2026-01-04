@@ -20,14 +20,14 @@
 #include <vector>
 using namespace GiNaC;
 
-inline constexpr int nu{0};
-inline constexpr int expansionOrder{200};
+inline constexpr int nu{3};
+inline constexpr int expansionOrder{292};
 inline constexpr int lmax{2 * expansionOrder};
 inline int even{0};
 inline int lstep{2};
 
-std::array<ex, expansionOrder + 1> fourierSeries(const ex &func,
-                                                 const symbol &var);
+std::array<ex, 2 * expansionOrder + 1> fourierSeries(const ex &func,
+                                                     const symbol &var);
 std::array<ex, 2 * expansionOrder + 1> vSeries(const ex &func,
                                                const symbol &var);
 std::vector<std::vector<ex>> pCoeff(const std::vector<ex> &arr,
@@ -36,5 +36,5 @@ std::vector<ex> cCoeff(const std::vector<ex> &f_n,
                        const std::vector<std::vector<ex>> &dict, const ex &func,
                        const symbol &var, std::size_t order);
 void evenCheck(const std::vector<ex> &f_n_x0);
-std::vector<ex> energy(const std::array<ex, 2 * expansionOrder + 1> &f_n_x0,
-                       ex &omega);
+std::array<ex, lmax / 2 + 1>
+energy(const std::array<ex, 2 * expansionOrder + 1> &f_n_x0, ex &omega);

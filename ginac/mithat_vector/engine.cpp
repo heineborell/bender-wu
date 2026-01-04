@@ -22,6 +22,7 @@ std::vector<ex> fourierSeries(const ex &func, const symbol &var, int order) {
 std::vector<ex> vSeries(const ex &func, const symbol &var, int order) {
   std::vector<ex> f_n(static_cast<std::size_t>(order + 1));
   std::vector<ex> f_n_x0(static_cast<std::size_t>(order + 1));
+  std::cout << "f_n_x0 size " << f_n_x0.size() << '\n';
 
   f_n[0] = func; // vn begins at 1 order with third derivative i.e.
                  // D[f,{x,i+2}]/(i+2)! {i,1,lmax}
@@ -110,6 +111,7 @@ std::vector<ex> energy(const std::vector<ex> &f_n_x0, ex &omega) {
   evenCheck(f_n_x0); // set lstep by checking evenness
   std::vector<std::vector<ex>> A(lmax + 1, std::vector<ex>(nu + 3 * lmax + 3));
   A[0][nu] = 1; // Normalization
+  std::cout << "A size " << f_n_x0.size() << '\n';
 
   std::vector<ex> E(lmax / 2 + 1);      // Energy
   E[0] = omega * (nu + numeric(1) / 2); // 0.th level

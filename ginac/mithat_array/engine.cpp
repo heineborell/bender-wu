@@ -2,17 +2,17 @@
 #include <algorithm>
 #include <cstddef>
 
-std::array<ex, expansionOrder + 1> fourierSeries(const ex &func,
-                                                 const symbol &var) {
-  std::array<ex, expansionOrder + 1> f_n{};
-  std::array<ex, expansionOrder + 1> f_n_x0{};
+std::array<ex, 2 * expansionOrder + 1> fourierSeries(const ex &func,
+                                                     const symbol &var) {
+  std::array<ex, 2 * expansionOrder + 1> f_n{};
+  std::array<ex, 2 * expansionOrder + 1> f_n_x0{};
 
   f_n[0] = func; // 0.th order
   f_n_x0[0] = f_n[0].subs(var == 0);
   f_n[1] = func.diff(var); // 1. order
   f_n_x0[1] = f_n[1].subs(var == 0);
 
-  for (int i{2}; i <= expansionOrder; ++i) {
+  for (int i{2}; i <= 2 * expansionOrder; ++i) {
     f_n.data()[i] = f_n.data()[i - 1].diff(var);
     f_n_x0.data()[i] = f_n.data()[i].subs(var == 0);
   }
@@ -108,13 +108,13 @@ std::vector<ex> cCoeff(const std::vector<ex> &f_n_x0,
   return c_n;
 }
 
-std::vector<ex> energy(const std::array<ex, 2 * expansionOrder + 1> &f_n_x0,
-                       ex &omega) {
+std::array<ex, lmax / 2 + 1>
+energy(const std::array<ex, 2 * expansionOrder + 1> &f_n_x0, ex &omega) {
   evenCheck(f_n_x0); // set lstep by checking evenness
-  std::vector<std::vector<ex>> A(lmax + 1, std::vector<ex>(nu + 3 * lmax + 3));
+  std::array<std::array<ex, nu + 3 * lmax + 3>, lmax + 1> A{};
   A[0][nu] = 1; // Normalization
 
-  std::vector<ex> E(lmax / 2 + 1);      // Energy
+  std::array<ex, lmax / 2 + 1> E{};     // Energy
   E[0] = omega * (nu + numeric(1) / 2); // 0.th level
   ex sum{0};
 

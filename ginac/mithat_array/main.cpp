@@ -10,9 +10,9 @@ int main() {
   ex potential{(x * x) + (x * x * x * x)};
   ex omega{sqrt(potential.diff(x, 2)).subs(x == 0)};
   std::array<ex, 2 * expansionOrder + 1> result{vSeries(potential, x)};
-  std::vector<ex> ecoeff{energy(result, omega)};
+  std::array<ex, lmax / 2 + 1> ecoeff{energy(result, omega)};
 
-  printArray(ecoeff, true);
+  // printArray(ecoeff, true);
   std::cout << "Time elapsed: " << t.elapsed() << " seconds\n";
 
   return 0;
