@@ -21,7 +21,7 @@
 using namespace GiNaC;
 
 inline constexpr int nu{3};
-inline constexpr int expansionOrder{292};
+inline constexpr int expansionOrder{50};
 inline constexpr int lmax{2 * expansionOrder};
 inline int even{0};
 inline int lstep{2};
