@@ -22,7 +22,6 @@ std::vector<ex> fourierSeries(const ex &func, const symbol &var, int order) {
 std::vector<ex> vSeries(const ex &func, const symbol &var, int order) {
   std::vector<ex> f_n(static_cast<std::size_t>(order + 1));
   std::vector<ex> f_n_x0(static_cast<std::size_t>(order + 1));
-  std::cout << "f_n_x0 size " << f_n_x0.size() << '\n';
 
   f_n[0] = func; // vn begins at 1 order with third derivative i.e.
                  // D[f,{x,i+2}]/(i+2)! {i,1,lmax}
