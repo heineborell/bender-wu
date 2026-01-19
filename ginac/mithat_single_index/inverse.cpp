@@ -8,9 +8,10 @@ int main() {
   symbol r{"ra"};
   symbol x{"x"};
   ex radius{x + log(1 + x)};
-  std::vector<ex> result{fourierSeries(radius, x, 100)};
-  std::vector<std::vector<ex>> pcoeff{pCoeff(result, 100)};
-  std::vector<ex> ccoeff{cCoeff(result, pcoeff, radius, x, 100)};
+  int order{30};
+  std::vector<ex> result{fourierSeries(radius, x, order)};
+  std::vector<std::vector<ex>> pcoeff{pCoeff(result, order)};
+  std::vector<ex> ccoeff{cCoeff(result, pcoeff, radius, x, order)};
   printArray(ccoeff, true);
   // ex series_expansion{radius.series(x == 0, 4)};
 
